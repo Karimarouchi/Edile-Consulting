@@ -1905,16 +1905,26 @@ p {
 
 .rea-projects-list {
   display: grid;
-  gap: 96px;
+  gap: 32px;
 }
 
 .rea-project {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 0;
   align-items: stretch;
   scroll-margin-top: calc(var(--header-h) + 72px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  background: var(--white);
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(25, 0, 77, 0.04);
+  transition: opacity 0.35s ease, transform 0.45s var(--ease), box-shadow 0.45s var(--ease);
+}
+
+.rea-project:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 48px rgba(25, 0, 77, 0.08);
 }
 
 .rea-project.is-filtered-out {
@@ -1930,9 +1940,10 @@ p {
 .rea-project-meta {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -1941,27 +1952,41 @@ p {
 }
 
 .rea-project-meta .line {
-  width: 28px;
-  height: 1px;
-  background: rgba(100, 82, 159, 0.35);
+  display: none;
+}
+
+.rea-project-meta span:last-child {
+  display: inline-flex;
+  padding: 4px 10px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--primary-container);
+  background: var(--primary-fixed);
+  border-radius: 999px;
+}
+
+.rea-project-copy {
+  order: 2;
+  padding: 28px 24px 32px;
 }
 
 .rea-project-copy h3 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
   line-height: 1.25;
-  color: var(--text);
-  margin-bottom: 20px;
+  color: var(--primary);
+  margin-bottom: 16px;
 }
 
 .rea-project-text {
   display: grid;
   gap: 14px;
-  margin-bottom: 28px;
+  margin-bottom: 0;
 }
 
 .rea-project-text p {
   color: var(--text-muted);
-  line-height: 1.65;
+  line-height: 1.7;
+  font-size: 15px;
 }
 
 .rea-project-link {
@@ -1987,45 +2012,59 @@ p {
   transform: translateX(4px);
 }
 
+/* Mobile : image en haut, style On parle de nous */
 .rea-project-visual {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1 / 1;
-  min-height: 280px;
-  padding: 28px;
-  background: #f0e8fa;
-  border-radius: var(--radius-lg);
+  order: 1;
+  display: block;
+  position: relative;
+  aspect-ratio: 16 / 11;
+  min-height: 0;
+  padding: 0;
+  background: var(--surface-container);
+  border-radius: 0;
   overflow: hidden;
 }
 
 .rea-project-visual img {
   width: 100%;
   height: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  transition: transform 0.7s var(--ease);
+  max-height: none;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.8s var(--ease);
 }
 
 .rea-project:hover .rea-project-visual img {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
-/* Mobile: sur les projets inversés, image d’abord */
 .rea-project--reverse .rea-project-visual {
-  order: -1;
+  order: 1;
 }
 
 @media (min-width: 1024px) {
+  .rea-projects {
+    background: var(--white);
+  }
+
   .rea-projects-list {
     gap: 120px;
   }
 
-  /* Impair : texte à gauche, image à droite */
   .rea-project {
     flex-direction: row;
     align-items: center;
     gap: 64px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .rea-project:hover {
+    transform: none;
+    box-shadow: none;
   }
 
   .rea-project-copy,
@@ -2033,18 +2072,70 @@ p {
     flex: 1 1 0;
   }
 
-  /* Pair : image à gauche, texte à droite */
+  .rea-project-copy {
+    order: 0;
+    padding: 0;
+  }
+
+  .rea-project-meta {
+    justify-content: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .rea-project-meta .line {
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: rgba(100, 82, 159, 0.35);
+  }
+
+  .rea-project-meta span:last-child {
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    color: #64529f;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .rea-project-copy h3 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .rea-project-text p {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .rea-project-visual {
+    order: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    padding: 40px;
+    background: #f0e8fa;
+    border-radius: var(--radius-lg);
+  }
+
+  .rea-project-visual img {
+    object-fit: contain;
+    object-position: center;
+    max-height: 100%;
+  }
+
+  .rea-project:hover .rea-project-visual img {
+    transform: scale(1.03);
+  }
+
   .rea-project--reverse {
     flex-direction: row-reverse;
   }
 
   .rea-project--reverse .rea-project-visual {
     order: 0;
-  }
-
-  .rea-project-visual {
-    min-height: 0;
-    padding: 40px;
   }
 }
 
