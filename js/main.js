@@ -10,6 +10,33 @@
   const formStatus = document.getElementById("form-status");
   const langButtons = document.querySelectorAll(".lang-btn");
 
+  /* ---------- Opening animation (index only, first visit / reload) ---------- */
+  const finishLoading = () => {
+    document.body.classList.remove("is-loading");
+    document.body.classList.add("is-ready");
+    try {
+      sessionStorage.setItem("edileNav", "1");
+    } catch (e) {}
+  };
+
+  // Mark site navigation on every page so returning to index skips the loader
+  try {
+    if (!document.body.classList.contains("is-loading")) {
+      sessionStorage.setItem("edileNav", "1");
+    }
+  } catch (e) {}
+
+  if (document.body.classList.contains("is-loading")) {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const revealDelay = reduceMotion ? 0 : 1000;
+    const reveal = () => window.setTimeout(finishLoading, revealDelay);
+
+    window.addEventListener("load", reveal, { once: true });
+    if (document.readyState === "complete") reveal();
+    // Safety: never block the page
+    window.setTimeout(finishLoading, reduceMotion ? 200 : 2800);
+  }
+
   /* ---------- Header scroll ---------- */
   const isInnerPage = document.body.classList.contains("page-inner");
 
@@ -63,6 +90,42 @@
     }
   }
 
+  /* ---------- Counter animation (intro stats) ---------- */
+  const animateCount = (el) => {
+    const target = Number(el.dataset.count || 0);
+    const suffix = el.dataset.suffix || "";
+    const pad = Number(el.dataset.pad || 0);
+    const duration = 1600;
+    const start = performance.now();
+    const parent = el.closest(".stat");
+
+    if (parent) parent.classList.add("is-counting");
+
+    const tick = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const value = Math.round(target * eased);
+      el.textContent = String(value).padStart(pad, "0") + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        el.textContent = String(target).padStart(pad, "0") + suffix;
+        if (parent) parent.classList.remove("is-counting");
+      }
+    };
+
+    requestAnimationFrame(tick);
+  };
+
+  const startCounters = (root) => {
+    const counters = (root || document).querySelectorAll("[data-count]");
+    counters.forEach((el) => {
+      if (el.dataset.counted === "true") return;
+      el.dataset.counted = "true";
+      animateCount(el);
+    });
+  };
+
   /* ---------- Reveal on scroll ---------- */
   const revealEls = document.querySelectorAll("[data-reveal]");
 
@@ -72,6 +135,9 @@
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-visible");
+            if (entry.target.id === "intro" || entry.target.querySelector("[data-count]")) {
+              startCounters(entry.target);
+            }
             observer.unobserve(entry.target);
           }
         });
@@ -82,6 +148,18 @@
     revealEls.forEach((el) => observer.observe(el));
   } else {
     revealEls.forEach((el) => el.classList.add("is-visible"));
+    startCounters(document);
+  }
+
+  /* Respect reduced motion */
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll("[data-count]").forEach((el) => {
+      const target = Number(el.dataset.count || 0);
+      const suffix = el.dataset.suffix || "";
+      const pad = Number(el.dataset.pad || 0);
+      el.textContent = String(target).padStart(pad, "0") + suffix;
+      el.dataset.counted = "true";
+    });
   }
 
   /* ---------- Language toggle (UI only for now) ---------- */

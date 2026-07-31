@@ -14,7 +14,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
+<body class="is-loading">
+  <script>
+    (function () {
+      try {
+        var nav = performance.getEntriesByType("navigation")[0];
+        var isReload = nav && nav.type === "reload";
+        var hasNavigated = sessionStorage.getItem("edileNav") === "1";
+        if (!isReload && hasNavigated) {
+          document.body.classList.remove("is-loading");
+          document.body.classList.add("is-ready", "is-internal-nav");
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <div class="page-loader" aria-hidden="true">
+    <img class="page-loader-logo" src="LOGO/edile%20logo1.png" alt="Edile Consulting" width="220" height="80" />
+    <div class="page-loader-bar"></div>
+  </div>
+
   <!-- Navigation -->
   <header class="site-header" id="main-nav">
     <div class="container header-inner">
@@ -87,11 +105,11 @@
         </div>
         <div class="intro-stats" id="bureaux">
           <div class="stat">
-            <div class="stat-value">02</div>
+            <div class="stat-value" data-count="2" data-pad="2">0</div>
             <div class="stat-label">Bureaux : Paris / Bruxelles</div>
           </div>
           <div class="stat">
-            <div class="stat-value">500+</div>
+            <div class="stat-value" data-count="500" data-suffix="+">0</div>
             <div class="stat-label">Interventions stratégiques</div>
           </div>
         </div>
