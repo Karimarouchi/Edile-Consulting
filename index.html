@@ -62,20 +62,21 @@
 
   <main id="top">
     <!-- Hero -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-media" aria-hidden="true">
-        <video
-          class="hero-video"
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="metadata"
-        >
-          <source src="https://a.storyblok.com/f/137553/x/ae6b8795ad/fgs-header-aerial-sequence_v2.mp4" type="video/mp4" />
-        </video>
-        <div class="hero-overlay"></div>
-      </div>
+    <section class="hero" id="liquid-glass-root" aria-labelledby="hero-title">
+      <!-- Direct children of root = what LiquidGlass can refract -->
+      <video
+        class="hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        aria-hidden="true"
+      >
+        <!-- Same-origin so LiquidGlass can sample frames (remote CDN had no CORS) -->
+        <source src="IMAGE/hero-aerial.mp4" type="video/mp4" />
+      </video>
+      <div class="hero-overlay" aria-hidden="true"></div>
 
       <div class="hero-content container">
         <p class="hero-brand">Edile Consulting</p>
@@ -83,10 +84,9 @@
         <p class="hero-lead">
           Accompagnement des décideurs et des institutions dans la maîtrise de leur communication stratégique au cœur des centres de pouvoir européens.
         </p>
-        <div class="hero-actions">
-          <a class="btn btn-outline-light" href="expertises.html">Découvrir nos expertises</a>
-        </div>
       </div>
+
+      <a class="btn glass hero-glass-cta" href="expertises.html">Découvrir nos expertises</a>
 
       <a class="hero-scroll" href="#intro" aria-label="Défiler vers le contenu">
         <span class="material-symbols-outlined" aria-hidden="true">arrow_downward</span>
@@ -409,5 +409,6 @@
   </footer>
 
   <script src="js/main.js" defer></script>
+  <script type="module" src="js/liquid-glass.js"></script>
 </body>
 </html>

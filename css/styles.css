@@ -429,16 +429,13 @@ p {
   position: relative;
   min-height: 100vh;
   min-height: 100dvh;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   background: var(--primary);
   color: var(--white);
-}
-
-.hero-media {
-  position: absolute;
-  inset: 0;
 }
 
 /* Page loader / opening */
@@ -500,7 +497,7 @@ body.is-internal-nav .page-loader {
 body.is-internal-nav .hero-brand,
 body.is-internal-nav .hero-content h1,
 body.is-internal-nav .hero-lead,
-body.is-internal-nav .hero-actions,
+body.is-internal-nav .hero-glass-cta,
 body.is-internal-nav .hero-scroll,
 body.is-internal-nav .hero-video,
 body.is-internal-nav .hero-overlay,
@@ -528,12 +525,14 @@ body.is-ready .site-header {
 .hero-video {
   position: absolute;
   inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.18);
-  opacity: 0.35;
+  transform: scale(1.12);
+  /* Stronger detail so LiquidGlass refraction is visible (like the demo photo) */
+  opacity: 0.62;
 }
 
 body.is-ready .hero-video {
@@ -544,11 +543,12 @@ body.is-ready .hero-video {
   position: absolute;
   inset: 0;
   z-index: 1;
+  pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(25, 0, 77, 0.45) 0%,
-    rgba(46, 25, 102, 0.55) 45%,
-    rgba(25, 0, 77, 0.82) 100%
+    rgba(25, 0, 77, 0.35) 0%,
+    rgba(46, 25, 102, 0.4) 40%,
+    rgba(25, 0, 77, 0.62) 100%
   );
   opacity: 0;
 }
@@ -562,7 +562,8 @@ body.is-ready .hero-overlay {
   z-index: 2;
   text-align: center;
   max-width: 52rem;
-  padding-block: calc(var(--header-h) + 48px) 96px;
+  padding-block: calc(var(--header-h) + 48px) 0;
+  width: 100%;
 }
 
 .hero-brand {
@@ -605,14 +606,44 @@ body.is-ready .hero-lead {
   animation: hero-attention 1.25s var(--ease) 0.95s both;
 }
 
-.hero-actions {
-  display: flex;
-  justify-content: center;
+.hero-glass-cta {
+  position: relative;
+  z-index: 3;
+  margin-top: 0;
+  margin-bottom: 96px;
+  padding: 14px 32px;
+  border-radius: 30px;
+  border: none;
+  color: var(--white);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  /* Transparent shell — WebGL canvas paints the liquid glass */
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
   opacity: 0;
 }
 
-body.is-ready .hero-actions {
+body.is-ready .hero-glass-cta {
   animation: hero-attention 1.2s var(--ease) 1.15s both;
+}
+
+.hero-glass-cta.is-liquid {
+  /* After LiquidGlass injects <canvas>, keep chrome out of the way */
+  background: transparent !important;
+  border: none !important;
+}
+
+.hero-glass-cta:hover {
+  background: transparent;
+  color: var(--white);
+}
+
+.hero-glass-cta.glass-fallback {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .hero-scroll {
@@ -1960,7 +1991,7 @@ body.is-ready .hero-scroll {
   .hero-brand,
   .hero-content h1,
   .hero-lead,
-  .hero-actions,
+  .hero-glass-cta,
   .hero-scroll,
   .hero-video,
   .hero-overlay {
