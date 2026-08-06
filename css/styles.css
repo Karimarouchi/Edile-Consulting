@@ -567,8 +567,8 @@ body.is-ready .site-header {
   object-fit: cover;
   object-position: center;
   transform: scale(1.12);
-  /* Stronger detail so LiquidGlass refraction is visible (like the demo photo) */
-  opacity: 0.62;
+  /* Assez clair pour le sampling LiquidGlass (sinon CTA noir au cold load) */
+  opacity: 1;
 }
 
 body.is-ready .hero-video {
@@ -649,26 +649,30 @@ body.is-ready .hero-lead {
   margin-bottom: 96px;
   padding: 14px 32px;
   border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   color: var(--white);
   font-weight: 600;
   letter-spacing: 0.01em;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(14px) saturate(120%);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  /* Glass CSS par défaut — visible même avant / sans WebGL */
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
   overflow: visible;
   opacity: 0;
 }
 
-/* Apparition plus rapide du CTA (plus de délai 1.15s) */
+/* Apparition rapide — forwards seul (pas both = pas d’opacity 0 pendant le délai) */
 body.is-ready .hero-glass-cta {
-  animation: hero-attention 0.7s var(--ease) 0.25s both;
+  animation: hero-attention 0.65s var(--ease) 0.15s forwards;
 }
 
 body.is-internal-nav .hero-glass-cta,
 body.is-ready .hero-glass-cta.glass-ready {
   opacity: 1;
+  animation: none;
 }
 
 .hero-glass-cta.is-liquid {
@@ -680,7 +684,7 @@ body.is-ready .hero-glass-cta.glass-ready {
 }
 
 .hero-glass-cta:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.22);
   color: var(--white);
 }
 
@@ -688,11 +692,16 @@ body.is-ready .hero-glass-cta.glass-ready {
   background: transparent;
 }
 
-.hero-glass-cta.glass-fallback {
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
+/* Fallback premium tant que WebGL n’est pas prêt (évite le noir GitHub) */
+.hero-glass-cta.glass-fallback,
+.hero-glass-cta.glass-ready:not(.is-liquid) {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .hero-scroll {

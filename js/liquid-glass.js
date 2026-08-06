@@ -1,6 +1,7 @@
 /**
- * Liquid Glass — hero CTA (chargement rapide)
- * 1) Fallback CSS immédiat  2) Init WebGL dès que possible
+ * Liquid Glass — hero CTA
+ * Toujours un glass CSS visible d’abord.
+ * WebGL seulement quand la vidéo est assez claire (évite le bouton noir au cold load / GitHub).
  */
 import { LiquidGlass } from "https://cdn.jsdelivr.net/npm/@ybouane/liquidglass/dist/index.js";
 
@@ -16,76 +17,119 @@ const waitForReady = () =>
       return;
     }
     const observer = new MutationObserver(() => {
-      if (document.body.classList.contains("is-ready")) {
+      if (
+        document.body.classList.contains("is-ready") ||
+        document.body.classList.contains("is-internal-nav")
+      ) {
         observer.disconnect();
         resolve();
       }
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-    // Ne jamais bloquer plus d’1s le glass CTA
     setTimeout(() => {
       observer.disconnect();
       resolve();
-    }, 1000);
+    }, 1200);
   });
 
-const waitForVideoBrief = (video) =>
+const waitForVideoReady = (video, maxMs = 2200) =>
   new Promise((resolve) => {
-    if (!video || video.readyState >= 2) {
-      resolve();
+    if (!video) {
+      resolve(false);
       return;
     }
-    const done = () => resolve();
-    video.addEventListener("loadeddata", done, { once: true });
-    video.addEventListener("canplay", done, { once: true });
-    video.addEventListener("error", done, { once: true });
-    // Max 350ms — ne pas attendre la vidéo entière
-    setTimeout(done, 350);
+
+    const ok = () => video.readyState >= 2 && !video.ended;
+
+    if (ok()) {
+      resolve(true);
+      return;
+    }
+
+    let done = false;
+    const finish = (value) => {
+      if (done) return;
+      done = true;
+      video.removeEventListener("loadeddata", onReady);
+      video.removeEventListener("canplay", onReady);
+      video.removeEventListener("error", onError);
+      resolve(value);
+    };
+
+    const onReady = () => finish(ok());
+    const onError = () => finish(false);
+
+    video.addEventListener("loadeddata", onReady);
+    video.addEventListener("canplay", onReady);
+    video.addEventListener("error", onError);
+    setTimeout(() => finish(ok()), maxMs);
   });
 
-const initHeroGlass = async () => {
-  const root = document.querySelector("#liquid-glass-root");
-  const glassElements = document.querySelectorAll("#liquid-glass-root .glass");
-  const video = root?.querySelector(".hero-video");
+const ensureVideoBright = (video) => {
+  if (!video) return;
+  // Aligné sur is-internal-nav : le sampling WebGL a besoin d’une vidéo lisible
+  video.style.opacity = "1";
+  try {
+    const playPromise = video.play();
+    if (playPromise?.catch) playPromise.catch(() => {});
+  } catch (_) {}
+};
 
-  if (!root || !glassElements.length) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    glassElements.forEach((el) => el.classList.add("glass-fallback"));
-    return;
-  }
-
-  // Visible immédiatement (look glass CSS) — pas d’attente WebGL
-  glassElements.forEach((el) => {
+const applyCssGlass = (els) => {
+  els.forEach((el) => {
     el.classList.add("glass-fallback", "glass-ready");
+    el.classList.remove("is-liquid");
     el.dataset.config = JSON.stringify({
       blurAmount: 0.25,
       cornerRadius: 30,
       button: true,
     });
   });
+};
 
-  const internalNav = document.body.classList.contains("is-internal-nav");
+const initHeroGlass = async () => {
+  const root = document.querySelector("#liquid-glass-root");
+  const glassElements = [...document.querySelectorAll("#liquid-glass-root .glass")];
+  const video = root?.querySelector(".hero-video");
 
-  if (!internalNav) {
-    await waitForReady();
+  if (!root || !glassElements.length) return;
+
+  // Glass CSS immédiat — jamais de bouton noir pendant le loading
+  applyCssGlass(glassElements);
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
   }
 
-  // Attentes courtes / parallèles
+  await waitForReady();
+  ensureVideoBright(video);
+
+  const videoReady = await waitForVideoReady(video, 2200);
   await Promise.all([
-    waitForVideoBrief(video),
     document.fonts?.ready
-      ? Promise.race([document.fonts.ready.catch(() => {}), sleep(150)])
+      ? Promise.race([document.fonts.ready.catch(() => {}), sleep(200)])
       : Promise.resolve(),
+    // Laisser le hero-video-in / paint atteindre une frame claire
+    sleep(videoReady ? 280 : 0),
   ]);
 
-  // Une frame pour peindre le fallback, puis WebGL
-  await new Promise((r) => requestAnimationFrame(r));
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  // Sans frame vidéo utilisable → garder le glass CSS (look correct)
+  if (!videoReady) {
+    console.warn("[LiquidGlass:hero] video not ready — CSS glass kept");
+    return;
+  }
 
   try {
     const instance = await LiquidGlass.init({
       root,
       glassElements,
     });
+
+    // Une frame WebGL avant de retirer le fallback (évite flash noir)
+    await new Promise((r) => requestAnimationFrame(r));
+    await sleep(80);
 
     glassElements.forEach((el) => {
       el.classList.add("is-liquid");
@@ -102,8 +146,8 @@ const initHeroGlass = async () => {
       { once: true }
     );
   } catch (err) {
-    console.warn("[LiquidGlass:hero] init skipped:", err);
-    // glass-fallback déjà en place
+    console.warn("[LiquidGlass:hero] init skipped — CSS glass kept:", err);
+    applyCssGlass(glassElements);
   }
 };
 
