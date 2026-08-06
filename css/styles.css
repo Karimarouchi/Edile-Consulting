@@ -649,50 +649,64 @@ body.is-ready .hero-lead {
   margin-bottom: 96px;
   padding: 14px 32px;
   border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
   color: var(--white);
   font-weight: 600;
   letter-spacing: 0.01em;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(14px) saturate(120%);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  /* Glass CSS stable — jamais transparent/noir (évite le bug WebGL GitHub) */
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
   overflow: visible;
   opacity: 0;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* Apparition plus rapide du CTA (plus de délai 1.15s) */
+/* Apparition plus rapide du CTA */
 body.is-ready .hero-glass-cta {
   animation: hero-attention 0.7s var(--ease) 0.25s both;
 }
 
 body.is-internal-nav .hero-glass-cta,
-body.is-ready .hero-glass-cta.glass-ready {
+body.is-ready .hero-glass-cta.glass-ready,
+body.is-ready .hero-glass-cta {
   opacity: 1;
 }
 
-.hero-glass-cta.is-liquid {
-  background: transparent !important;
-  border: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
+/* Si une ancienne classe WebGL reste, on force quand même le glass CSS */
+.hero-glass-cta.is-liquid,
+.hero-glass-cta.liquid-glass-button {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(18px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
 }
 
-.hero-glass-cta:hover {
-  background: rgba(255, 255, 255, 0.18);
+.hero-glass-cta:hover,
+.hero-glass-cta.is-liquid:hover {
+  background: rgba(255, 255, 255, 0.24) !important;
+  border-color: rgba(255, 255, 255, 0.7) !important;
   color: var(--white);
 }
 
-.hero-glass-cta.is-liquid:hover {
-  background: transparent;
+.hero-glass-cta.glass-fallback {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
-.hero-glass-cta.glass-fallback {
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
+/* Masquer un éventuel canvas WebGL résiduel derrière/devant le CTA */
+#liquid-glass-root canvas,
+.hero-glass-cta canvas {
+  display: none !important;
 }
 
 .hero-scroll {
