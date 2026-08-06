@@ -202,23 +202,91 @@
       playBtn.addEventListener("click", loadEmbed);
     }
   }
-  const filterButtons = document.querySelectorAll(".rea-filter");
-  const projects = document.querySelectorAll(".rea-project");
+  /* ---------- Réalisations filters (page dédiée + accueil sticky stack) ---------- */
+  const bindProjectFilters = (buttonSel, itemSel) => {
+    const filterButtons = document.querySelectorAll(buttonSel);
+    const items = document.querySelectorAll(itemSel);
+    if (!filterButtons.length || !items.length) return;
 
-  if (filterButtons.length && projects.length) {
     filterButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         const filter = btn.dataset.filter || "all";
-
         filterButtons.forEach((b) => b.classList.toggle("is-active", b === btn));
 
-        projects.forEach((project) => {
-          const cats = (project.dataset.categories || "").split(/\s+/);
+        items.forEach((item) => {
+          const cats = (item.dataset.categories || "").split(/\s+/);
           const show = filter === "all" || cats.includes(filter);
-          project.classList.toggle("is-filtered-out", !show);
+          item.classList.toggle("is-filtered-out", !show);
         });
       });
     });
+  };
+
+  bindProjectFilters(".rea-filter", ".rea-project");
+
+  /* ---------- Scroll overlay stack: carte N glisse sur N-1 ---------- */
+  const caseStack = document.getElementById("case-stack");
+  if (caseStack && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const section = document.querySelector(".case-studies");
+    const clamp01 = (n) => Math.min(1, Math.max(0, n));
+    const stickies = () => Array.from(caseStack.querySelectorAll(".case-sticky"));
+
+    let caseTicking = false;
+
+    const updateCaseStack = () => {
+      caseTicking = false;
+      const visible = stickies();
+
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        visible.forEach((el) => {
+          el.style.setProperty("--cover", "0");
+          el.classList.remove("is-passing", "is-active");
+        });
+        return;
+      }
+
+      const styles = getComputedStyle(section || document.documentElement);
+      const headerH =
+        parseFloat(styles.getPropertyValue("--header-height")) ||
+        document.getElementById("main-nav")?.offsetHeight ||
+        80;
+      const stackStart = parseFloat(styles.getPropertyValue("--stack-start")) || 16;
+      const stackGap = parseFloat(styles.getPropertyValue("--stack-gap")) || 14;
+      const vh = window.innerHeight;
+
+      visible.forEach((sticky, index) => {
+        const stickyTop = headerH + stackStart + index * stackGap;
+        const next = visible[index + 1];
+        let cover = 0;
+
+        if (next) {
+          const nextTop = next.getBoundingClientRect().top;
+          const nextSticky = headerH + stackStart + (index + 1) * stackGap;
+          // 0 = carte suivante sous l’écran · 1 = elle a fini de recouvrir
+          const travel = Math.max(1, vh - nextSticky);
+          cover = clamp01((vh - nextTop) / travel);
+        }
+
+        const rounded = Math.round(cover * 1000) / 1000;
+        sticky.style.setProperty("--cover", String(rounded));
+        sticky.classList.toggle("is-passing", rounded > 0.12);
+        sticky.classList.toggle(
+          "is-active",
+          rounded < 0.55 && sticky.getBoundingClientRect().top <= stickyTop + 10
+        );
+      });
+    };
+
+    const onCaseScroll = () => {
+      if (!caseTicking) {
+        caseTicking = true;
+        requestAnimationFrame(updateCaseStack);
+      }
+    };
+
+    window.addEventListener("scroll", onCaseScroll, { passive: true });
+    window.addEventListener("resize", onCaseScroll, { passive: true });
+    updateCaseStack();
   }
 
   /* ---------- Contact form ---------- */

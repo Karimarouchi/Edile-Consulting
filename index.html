@@ -264,53 +264,108 @@
       </div>
     </section>
 
-    <!-- Réalisations -->
-    <section class="section realisations" id="realisations" data-reveal>
-      <div class="container">
-        <div class="section-head section-head--row">
-          <div>
+    <!-- Réalisations — sticky overlay (pas de transform sur les ancêtres du sticky) -->
+    <section class="section realisations case-studies" id="realisations">
+      <div class="case-shell">
+        <header class="case-intro" data-reveal>
+          <div class="case-intro-copy">
+            <span class="case-eyebrow">Nos réalisations</span>
             <h2>Réalisations Récentes</h2>
             <p>Des opérations médiatiques et d’influence à fort impact.</p>
           </div>
-          <a class="btn btn-primary btn-expertise-all" href="realisations.html">
+          <a class="btn btn-primary case-intro-cta" href="realisations.html">
             Toutes nos réalisations
             <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
           </a>
-        </div>
+        </header>
 
-        <div class="projects-grid">
-          <a class="project" href="realisations.html#qatar-2022">
-            <div class="project-media project-media--1"></div>
-            <div class="project-meta">
-              <div>
-                <span class="project-tag">Influence internationale</span>
+        <div class="case-stack" id="case-stack">
+          <article
+            class="case-sticky project-step"
+            style="--index: 0"
+          >
+            <div class="case-card project-card">
+              <div class="case-card-copy">
+                <div class="case-card-meta">
+                  <span class="case-num">01</span>
+                  <span class="case-cat">Influence internationale · Relations médias</span>
+                </div>
                 <h3>Coupe du Monde FIFA Qatar 2022</h3>
+                <p>
+                  Accompagnement des relations presse de l’État du Qatar en France et en Belgique, avant et pendant la Coupe du Monde — voyages de presse, interviews et retombées dans les grands médias.
+                </p>
+                <a class="case-card-link" href="realisations.html#qatar-2022">
+                  Découvrir le projet
+                  <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </a>
               </div>
-              <span class="material-symbols-outlined" aria-hidden="true">north_east</span>
+              <div class="case-card-visual">
+                <img
+                  src="IMAGE/Coupe%20du%20Monde%20FIFA%20Qatar%202022.jpg"
+                  alt="Coupe du Monde FIFA Qatar 2022"
+                  loading="lazy"
+                />
+              </div>
             </div>
-          </a>
+          </article>
 
-          <a class="project" href="realisations.html#emir-le-point">
-            <div class="project-media project-media--2"></div>
-            <div class="project-meta">
-              <div>
-                <span class="project-tag">Presse internationale</span>
+          <article
+            class="case-sticky project-step"
+            style="--index: 1"
+          >
+            <div class="case-card project-card">
+              <div class="case-card-copy">
+                <div class="case-card-meta">
+                  <span class="case-num">02</span>
+                  <span class="case-cat">Presse internationale</span>
+                </div>
                 <h3>Grand Entretien — Émir du Qatar</h3>
+                <p>
+                  Organisation d’un entretien exclusif avec Le Point : première prise de parole de l’Émir dans la presse écrite européenne, à l’aube de la Coupe du Monde.
+                </p>
+                <a class="case-card-link" href="realisations.html#emir-le-point">
+                  Découvrir le projet
+                  <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </a>
               </div>
-              <span class="material-symbols-outlined" aria-hidden="true">north_east</span>
+              <div class="case-card-visual">
+                <img
+                  src="IMAGE/Grand%20Entretien%20avec%20l%20emir%20du%20Qatar.png"
+                  alt="Le Point — grand entretien avec l’Émir du Qatar"
+                  loading="lazy"
+                />
+              </div>
             </div>
-          </a>
+          </article>
 
-          <a class="project" href="realisations.html#cheikha-moza">
-            <div class="project-media project-media--3"></div>
-            <div class="project-meta">
-              <div>
-                <span class="project-tag">Interview exclusive</span>
+          <article
+            class="case-sticky project-step"
+            style="--index: 2"
+          >
+            <div class="case-card project-card">
+              <div class="case-card-copy">
+                <div class="case-card-meta">
+                  <span class="case-num">03</span>
+                  <span class="case-cat">Presse · Interview exclusive</span>
+                </div>
                 <h3>Cheikha Moza — Paris Match</h3>
+                <p>
+                  Médiatisation de la venue de Cheikha Moza à l’UNESCO, dont une interview exclusive Paris Match avec photo de couverture et diffusion en ligne.
+                </p>
+                <a class="case-card-link" href="realisations.html#cheikha-moza">
+                  Découvrir le projet
+                  <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </a>
               </div>
-              <span class="material-symbols-outlined" aria-hidden="true">north_east</span>
+              <div class="case-card-visual">
+                <img
+                  src="IMAGE/Interview%20exclusive%20de%20Cheikha%20Moza%20avec%20Paris%20Match.jpg"
+                  alt="Paris Match — interview exclusive de Cheikha Moza"
+                  loading="lazy"
+                />
+              </div>
             </div>
-          </a>
+          </article>
         </div>
       </div>
     </section>
