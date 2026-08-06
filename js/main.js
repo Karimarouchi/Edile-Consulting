@@ -265,4 +265,54 @@
       }
     }
   }
+
+  /* ---------- Sticky hero cover progress (scroll-linked, no permanent rAF) ---------- */
+  const heroEl = document.querySelector(".hero");
+  const pageOverlay = document.querySelector(".page-overlay");
+  const reduceCoverMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (heroEl && pageOverlay && !reduceCoverMotion) {
+    let coverTicking = false;
+    let lastCover = -1;
+    let videoPausedByCover = false;
+
+    const updateHeroCover = () => {
+      coverTicking = false;
+      const vh = window.innerHeight || 1;
+      const top = pageOverlay.getBoundingClientRect().top;
+      // 0 = overlay below viewport, 1 = overlay fully covering hero
+      const progress = Math.min(1, Math.max(0, 1 - top / vh));
+      const rounded = Math.round(progress * 1000) / 1000;
+
+      if (rounded !== lastCover) {
+        lastCover = rounded;
+        heroEl.style.setProperty("--hero-cover", String(rounded));
+      }
+
+      // Pause video once fully covered; resume when revealed again
+      if (heroVideo && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        if (rounded >= 0.98) {
+          if (!heroVideo.paused) {
+            heroVideo.pause();
+            videoPausedByCover = true;
+          }
+        } else if (videoPausedByCover && heroVideo.paused) {
+          const play = heroVideo.play();
+          if (play && typeof play.catch === "function") play.catch(() => {});
+          videoPausedByCover = false;
+        }
+      }
+    };
+
+    const onCoverScroll = () => {
+      if (!coverTicking) {
+        coverTicking = true;
+        requestAnimationFrame(updateHeroCover);
+      }
+    };
+
+    window.addEventListener("scroll", onCoverScroll, { passive: true });
+    window.addEventListener("resize", onCoverScroll, { passive: true });
+    updateHeroCover();
+  }
 })();

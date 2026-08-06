@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@ybouane/liquidglass/dist/index.js" />
 </head>
 <body class="is-loading">
   <script>
@@ -61,41 +62,41 @@
   </header>
 
   <main id="top">
-    <!-- Hero -->
-    <section class="hero" id="liquid-glass-root" aria-labelledby="hero-title">
-      <!-- Direct children of root = what LiquidGlass can refract -->
-      <video
-        class="hero-video"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="auto"
-        aria-hidden="true"
-      >
-        <!-- Same-origin so LiquidGlass can sample frames (remote CDN had no CORS) -->
-        <source src="IMAGE/hero-aerial.mp4" type="video/mp4" />
-      </video>
-      <div class="hero-overlay" aria-hidden="true"></div>
+    <!-- Sticky hero: stays pinned while the next page slides over -->
+    <section class="hero-sticky" aria-labelledby="hero-title">
+      <div class="hero" id="liquid-glass-root">
+        <video
+          class="hero-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          aria-hidden="true"
+        >
+          <source src="IMAGE/hero-aerial.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-overlay" aria-hidden="true"></div>
 
-      <div class="hero-content container">
-        <p class="hero-brand">Edile Consulting</p>
-        <h1 id="hero-title">Nous façonnons l’influence, la réputation et le dialogue.</h1>
-        <p class="hero-lead">
-          Accompagnement des décideurs et des institutions dans la maîtrise de leur communication stratégique au cœur des centres de pouvoir européens.
-        </p>
+        <div class="hero-content container">
+          <p class="hero-brand">Edile Consulting</p>
+          <h1 id="hero-title">Nous façonnons l’influence, la réputation et le dialogue.</h1>
+          <p class="hero-lead">
+            Accompagnement des décideurs et des institutions dans la maîtrise de leur communication stratégique au cœur des centres de pouvoir européens.
+          </p>
+        </div>
+
+        <a class="btn glass hero-glass-cta" href="expertises.html">Découvrir nos expertises</a>
+
+        <a class="hero-scroll" href="#intro" aria-label="Défiler vers le contenu">
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_downward</span>
+        </a>
       </div>
-
-      <a class="btn glass hero-glass-cta" href="expertises.html">Découvrir nos expertises</a>
-
-      <a class="hero-scroll" href="#intro" aria-label="Défiler vers le contenu">
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_downward</span>
-      </a>
     </section>
 
-    <!-- Intro / Stats -->
-    <section class="section intro" id="intro" data-reveal>
-      <div class="container intro-grid">
+    <!-- Page overlay: slides up over the sticky hero on scroll -->
+    <section class="section intro page-overlay" id="intro">
+      <div class="container intro-grid" data-reveal>
         <div class="intro-copy">
           <span class="eyebrow">Depuis 2015</span>
           <h2>Une agence internationale de relations publics à l’influence reconnue.</h2>
@@ -209,42 +210,55 @@
 
     <!-- Notre Équipe -->
     <section class="section equipe" id="equipe" data-reveal>
-      <div class="container">
-        <div class="equipe-head">
-          <span class="eyebrow">Notre équipe</span>
-          <h2>Une expertise collective, un accompagnement personnel</h2>
-          <span class="equipe-rule" aria-hidden="true"></span>
-        </div>
+      <div class="equipe-shell">
+        <header class="equipe-head">
+          <span class="equipe-badge">Notre équipe</span>
+          <h2 class="equipe-title">Une expertise collective,<br />un accompagnement personnel</h2>
+        </header>
 
-        <div class="equipe-grid">
-          <article class="team-card" style="--i: 0">
-            <div class="team-photo team-photo--sihem" role="img" aria-label="Portrait de Sihem Souid"></div>
-            <h3>Sihem Souid</h3>
-            <p>Cofondatrice, CEO</p>
+        <!-- LiquidGlass root = grid only (glass cards as direct children) -->
+        <div class="team-grid" id="team-glass-root">
+          <div class="equipe-atmosphere" aria-hidden="true"></div>
+
+          <article class="team-card glass team-card--featured" style="--i: 0" tabindex="0">
+            <div class="team-avatar team-avatar--sihem" role="img" aria-label="Portrait de Sihem Souid"></div>
+            <div class="team-card-content">
+              <h3>Sihem Souid</h3>
+              <p>Cofondatrice, CEO</p>
+            </div>
+            <span class="team-chip">Direction</span>
           </article>
 
-          <article class="team-card" style="--i: 1">
-            <div class="team-photo team-photo--mono" data-initials="OF" role="img" aria-label="Olivier Felten"></div>
-            <h3>Olivier Felten</h3>
-            <p>Cofondateur, COO / Communication stratégique</p>
+          <article class="team-card glass team-card--co" style="--i: 1" tabindex="0">
+            <div class="team-avatar team-avatar--mono" data-initials="OF" role="img" aria-label="Olivier Felten"></div>
+            <div class="team-card-content">
+              <h3>Olivier Felten</h3>
+              <p>Cofondateur, COO / Communication stratégique</p>
+            </div>
           </article>
 
-          <article class="team-card" style="--i: 2">
-            <div class="team-photo team-photo--mono team-photo--tone-2" data-initials="FB" role="img" aria-label="Felicia Balan"></div>
-            <h3>Felicia Balan</h3>
-            <p>Consultante senior UE / Belgique</p>
+          <article class="team-card glass" style="--i: 2" tabindex="0">
+            <div class="team-avatar team-avatar--mono team-avatar--tone-2" data-initials="FB" role="img" aria-label="Felicia Balan"></div>
+            <div class="team-card-content">
+              <h3>Felicia Balan</h3>
+              <p>Consultante senior UE / Belgique</p>
+            </div>
           </article>
 
-          <article class="team-card" style="--i: 3">
-            <div class="team-photo team-photo--mono team-photo--tone-3" data-initials="AB" role="img" aria-label="Anis Berrechache"></div>
-            <h3>Anis Berrechache</h3>
-            <p>Consultant Paris / Bruxelles</p>
+          <article class="team-card glass" style="--i: 3" tabindex="0">
+            <div class="team-avatar team-avatar--mono team-avatar--tone-3" data-initials="AB" role="img" aria-label="Anis Berrechache"></div>
+            <div class="team-card-content">
+              <h3>Anis Berrechache</h3>
+              <p>Consultant Paris / Bruxelles</p>
+            </div>
           </article>
 
-          <article class="team-card" style="--i: 4">
-            <div class="team-photo team-photo--mono team-photo--tone-4" data-initials="AS" role="img" aria-label="Arthur Smadja"></div>
-            <h3>Arthur Smadja</h3>
-            <p>Consultant junior Paris</p>
+          <article class="team-card glass" style="--i: 4" tabindex="0">
+            <div class="team-avatar team-avatar--mono team-avatar--tone-4" data-initials="AS" role="img" aria-label="Arthur Smadja"></div>
+            <div class="team-card-content">
+              <h3>Arthur Smadja</h3>
+              <p>Consultant junior Paris</p>
+            </div>
           </article>
         </div>
       </div>
@@ -410,5 +424,6 @@
 
   <script src="js/main.js" defer></script>
   <script type="module" src="js/liquid-glass.js"></script>
+  <script type="module" src="js/team-glass.js"></script>
 </body>
 </html>

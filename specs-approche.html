@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brief graphiste — Section Approche | Edile Consulting</title>
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .specs-page {
+      background: var(--bg);
+      color: var(--text);
+      padding-block: calc(var(--header-h) + 40px) 80px;
+    }
+
+    .specs-hero {
+      max-width: 40rem;
+      margin-bottom: 48px;
+    }
+
+    .specs-hero h1 {
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .specs-hero p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    .specs-grid {
+      display: grid;
+      gap: 24px;
+      margin-bottom: 64px;
+    }
+
+    @media (min-width: 900px) {
+      .specs-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .specs-card {
+      background: var(--white);
+      border: 1px solid var(--outline);
+      padding: 24px;
+    }
+
+    .specs-card h2 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: 16px;
+    }
+
+    .specs-card dl {
+      display: grid;
+      gap: 12px;
+    }
+
+    .specs-card dt {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-soft);
+    }
+
+    .specs-card dd {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 4px 0 0;
+    }
+
+    .specs-card .note {
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .specs-highlight dd {
+      font-size: 1.6rem;
+      color: var(--secondary);
+    }
+
+    .specs-preview-label {
+      margin-bottom: 20px;
+    }
+
+    .specs-preview-label h2 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .specs-preview-label p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    .specs-frame {
+      border: 1px dashed var(--outline-strong);
+      background: var(--bg);
+      padding: 8px;
+    }
+
+    .specs-dim {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .site-header {
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid var(--outline);
+    }
+
+    .site-header .logo img {
+      filter: none;
+    }
+
+    .site-header .nav-desktop a,
+    .site-header .menu-toggle {
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body class="page-inner is-ready">
+  <header class="site-header is-scrolled" id="main-nav">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">
+        <img src="LOGO/edile%20logo1.png" alt="Edile Consulting" width="180" height="65" />
+      </a>
+      <nav class="nav-desktop" aria-label="Navigation">
+        <a href="index.html">Accueil</a>
+        <a href="index.html#approche">Approche</a>
+        <a href="specs-approche.html" aria-current="page">Brief portrait</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="specs-page">
+    <div class="container">
+      <div class="specs-hero">
+        <span class="eyebrow">Brief graphiste</span>
+        <h1>Portrait section Approche</h1>
+        <p>
+          Spécifications pour préparer l’image <code>.approche-portrait</code>
+          (portrait Sihem Souid) à la meilleure résolution pour le site Edile Consulting.
+        </p>
+      </div>
+
+      <div class="specs-grid">
+        <article class="specs-card specs-highlight">
+          <h2>Résolution recommandée</h2>
+          <dl>
+            <div>
+              <dt>Livrable idéal</dt>
+              <dd>1600 × 2000 px</dd>
+            </div>
+            <div>
+              <dt>Ratio</dt>
+              <dd>4:5 (portrait)</dd>
+            </div>
+          </dl>
+          <p class="note">
+            C’est le format à demander aux graphistes. Net sur écran Retina (2×)
+            et adapté au cadre CSS du site.
+          </p>
+        </article>
+
+        <article class="specs-card">
+          <h2>Affichage site (desktop)</h2>
+          <dl>
+            <div>
+              <dt>Taille affichée ≈</dt>
+              <dd>576 × 720 px</dd>
+            </div>
+            <div>
+              <dt>Conteneur</dt>
+              <dd>max 1280 px · 2 colonnes</dd>
+            </div>
+          </dl>
+          <p class="note">
+            Colonne gauche ≈ moitié du container (gap 80px).
+            Le CSS force <strong>aspect-ratio: 4 / 5</strong> avec <code>object-fit: cover</code>.
+          </p>
+        </article>
+
+        <article class="specs-card">
+          <h2>Fichier &amp; cadrage</h2>
+          <dl>
+            <div>
+              <dt>Format</dt>
+              <dd>JPG / WebP · sRGB</dd>
+            </div>
+            <div>
+              <dt>Poids cible</dt>
+              <dd>&lt; 400 Ko</dd>
+            </div>
+          </dl>
+          <p class="note">
+            Laisser de l’espace en bas à droite : la citation chevauche le portrait
+            (~320px de large). Visage centré, regard clair, fond propre.
+          </p>
+        </article>
+      </div>
+
+      <div class="specs-grid">
+        <article class="specs-card">
+          <h2>Minimum acceptable</h2>
+          <dl>
+            <div>
+              <dt>Résolution</dt>
+              <dd>1200 × 1500 px</dd>
+            </div>
+          </dl>
+          <p class="note">En dessous, l’image devient floue sur écran Retina.</p>
+        </article>
+
+        <article class="specs-card">
+          <h2>Premium / archive</h2>
+          <dl>
+            <div>
+              <dt>Résolution</dt>
+              <dd>2400 × 3000 px</dd>
+            </div>
+          </dl>
+          <p class="note">Pour print, grands écrans ou recadrages futurs. Exporter aussi une version web 1600×2000.</p>
+        </article>
+
+        <article class="specs-card">
+          <h2>Fichier actuel</h2>
+          <dl>
+            <div>
+              <dt>IMAGE SIHEM HERO PAGE.jpg</dt>
+              <dd>3024 × 4032 px</dd>
+            </div>
+          </dl>
+          <p class="note">
+            Ratio actuel ≈ 3:4. Le site recadre en 4:5. Préférer un export natif 4:5
+            pour un cadrage maîtrisé.
+          </p>
+        </article>
+      </div>
+
+      <div class="specs-preview-label">
+        <h2>Aperçu — <code>section.approche.is-visible</code></h2>
+        <p>Rendu réel de la section Approche (état visible), avec dimensions du cadre portrait.</p>
+      </div>
+    </div>
+
+    <div class="specs-frame">
+      <section class="section approche is-visible" id="approche" aria-labelledby="approche-title">
+        <div class="container approche-grid">
+          <div class="approche-visual">
+            <div
+              class="approche-portrait"
+              id="portrait-measure"
+              role="img"
+              aria-label="Portrait professionnel de Sihem Souid, fondatrice d’Edile Consulting"
+            ></div>
+            <span class="specs-dim" id="portrait-dims">Mesure en cours…</span>
+            <blockquote class="approche-quote">
+              <p>« Nous ne nous contentons pas de communiquer, nous construisons des passerelles pérennes entre nos clients et leurs environnements stratégiques. »</p>
+              <footer>
+                <cite>Sihem Souid</cite>
+                <span>Fondatrice &amp; Présidente</span>
+              </footer>
+            </blockquote>
+          </div>
+
+          <div class="approche-copy">
+            <span class="eyebrow">Vision</span>
+            <h2 id="approche-title">Notre Approche : L’Excellence du Dialogue</h2>
+            <p class="lead">
+              Dans un monde saturé d’informations, la clarté est le nouveau pouvoir. Notre approche repose sur une analyse granulaire des signaux faibles et une compréhension intime des codes institutionnels.
+            </p>
+            <p>
+              Edile Consulting intervient là où les enjeux sont les plus critiques : transformation réglementaire, gestion de crise médiatique ou développement de partenariats stratégiques de haut niveau.
+            </p>
+            <div class="value-grid">
+              <div class="value-item">
+                <h3>Éthique</h3>
+                <p>Engagement total envers la transparence et la déontologie.</p>
+              </div>
+              <div class="value-item">
+                <h3>Impact</h3>
+                <p>Des résultats mesurables sur la réputation et le dialogue public.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const el = document.getElementById("portrait-measure");
+    const label = document.getElementById("portrait-dims");
+    const update = () => {
+      if (!el || !label) return;
+      const r = el.getBoundingClientRect();
+      const w = Math.round(r.width);
+      const h = Math.round(r.height);
+      label.textContent = `Cadre affiché : ${w} × ${h} px CSS  ·  livrer en 1600 × 2000 px (4:5)`;
+    };
+    update();
+    window.addEventListener("resize", update, { passive: true });
+  </script>
+</body>
+</html>

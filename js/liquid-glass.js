@@ -1,11 +1,17 @@
 /**
- * Liquid Glass — Frosted Glass CTA (same preset as liquid-glass.ybouane.com)
+ * Liquid Glass — hero CTA (chargement rapide)
+ * 1) Fallback CSS immédiat  2) Init WebGL dès que possible
  */
 import { LiquidGlass } from "https://cdn.jsdelivr.net/npm/@ybouane/liquidglass/dist/index.js";
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const waitForReady = () =>
   new Promise((resolve) => {
-    if (document.body.classList.contains("is-ready")) {
+    if (
+      document.body.classList.contains("is-ready") ||
+      document.body.classList.contains("is-internal-nav")
+    ) {
       resolve();
       return;
     }
@@ -16,52 +22,64 @@ const waitForReady = () =>
       }
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    // Ne jamais bloquer plus d’1s le glass CTA
+    setTimeout(() => {
+      observer.disconnect();
+      resolve();
+    }, 1000);
   });
 
-const waitForVideo = (video) =>
+const waitForVideoBrief = (video) =>
   new Promise((resolve) => {
-    if (!video) {
-      resolve();
-      return;
-    }
-    if (video.readyState >= 2) {
+    if (!video || video.readyState >= 2) {
       resolve();
       return;
     }
     const done = () => resolve();
     video.addEventListener("loadeddata", done, { once: true });
+    video.addEventListener("canplay", done, { once: true });
     video.addEventListener("error", done, { once: true });
-    setTimeout(done, 2500);
+    // Max 350ms — ne pas attendre la vidéo entière
+    setTimeout(done, 350);
   });
 
 const initHeroGlass = async () => {
   const root = document.querySelector("#liquid-glass-root");
-  const glassElements = document.querySelectorAll(".glass");
+  const glassElements = document.querySelectorAll("#liquid-glass-root .glass");
   const video = root?.querySelector(".hero-video");
 
   if (!root || !glassElements.length) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  await waitForReady();
-  await waitForVideo(video);
-
-  if (document.fonts?.ready) {
-    try {
-      await document.fonts.ready;
-    } catch (_) {}
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    glassElements.forEach((el) => el.classList.add("glass-fallback"));
+    return;
   }
 
-  // Official "Frosted Glass" preset from the docs + button mode
-  glassElements.forEach((element) => {
-    element.dataset.config = JSON.stringify({
+  // Visible immédiatement (look glass CSS) — pas d’attente WebGL
+  glassElements.forEach((el) => {
+    el.classList.add("glass-fallback", "glass-ready");
+    el.dataset.config = JSON.stringify({
       blurAmount: 0.25,
       cornerRadius: 30,
       button: true,
     });
   });
 
-  // First paint after entrance so capture isn't empty/transparent
-  await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 80)));
+  const internalNav = document.body.classList.contains("is-internal-nav");
+
+  if (!internalNav) {
+    await waitForReady();
+  }
+
+  // Attentes courtes / parallèles
+  await Promise.all([
+    waitForVideoBrief(video),
+    document.fonts?.ready
+      ? Promise.race([document.fonts.ready.catch(() => {}), sleep(150)])
+      : Promise.resolve(),
+  ]);
+
+  // Une frame pour peindre le fallback, puis WebGL
+  await new Promise((r) => requestAnimationFrame(r));
 
   try {
     const instance = await LiquidGlass.init({
@@ -69,7 +87,10 @@ const initHeroGlass = async () => {
       glassElements,
     });
 
-    glassElements.forEach((el) => el.classList.add("is-liquid"));
+    glassElements.forEach((el) => {
+      el.classList.add("is-liquid");
+      el.classList.remove("glass-fallback");
+    });
 
     window.addEventListener(
       "pagehide",
@@ -81,8 +102,8 @@ const initHeroGlass = async () => {
       { once: true }
     );
   } catch (err) {
-    console.warn("[LiquidGlass] init skipped:", err);
-    glassElements.forEach((el) => el.classList.add("glass-fallback"));
+    console.warn("[LiquidGlass:hero] init skipped:", err);
+    // glass-fallback déjà en place
   }
 };
 
