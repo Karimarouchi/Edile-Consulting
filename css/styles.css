@@ -787,6 +787,20 @@ body.is-ready .hero-scroll {
   color: var(--text-muted);
 }
 
+.stat--locations {
+  display: flex;
+  align-items: center;
+}
+
+.stat-locations {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--primary);
+}
+
 @media (min-width: 900px) {
   .intro-grid {
     grid-template-columns: 7fr 5fr;
