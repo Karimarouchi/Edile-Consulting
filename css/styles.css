@@ -548,6 +548,21 @@ body.is-loading {
   overflow: hidden;
 }
 
+/*
+  Sous le loader : hero + CTA pleinement peints pour LiquidGlass
+  (sinon capture opacity:0 → bouton noir à l’ouverture).
+*/
+body.is-loading .hero-video,
+body.is-loading .hero-overlay,
+body.is-loading.glass-cta-preparing .hero-glass-cta,
+body.is-loading .hero-glass-cta.glass-ready {
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+
 body.is-loading .site-header,
 body.is-ready .site-header {
   opacity: 0;
@@ -670,7 +685,8 @@ body.is-ready .hero-glass-cta {
 }
 
 body.is-internal-nav .hero-glass-cta,
-body.is-ready .hero-glass-cta.glass-ready {
+body.is-ready .hero-glass-cta.glass-ready,
+body.is-ready .hero-glass-cta.is-liquid {
   opacity: 1;
   animation: none;
 }

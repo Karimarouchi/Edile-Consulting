@@ -11,8 +11,11 @@
   const langButtons = document.querySelectorAll(".lang-btn");
 
   /* ---------- Opening animation (index only, first visit / reload) ---------- */
+  let loadingFinished = false;
   const finishLoading = () => {
-    document.body.classList.remove("is-loading");
+    if (loadingFinished) return;
+    loadingFinished = true;
+    document.body.classList.remove("is-loading", "glass-cta-preparing");
     document.body.classList.add("is-ready");
     try {
       sessionStorage.setItem("edileNav", "1");
@@ -28,13 +31,34 @@
 
   if (document.body.classList.contains("is-loading")) {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const revealDelay = reduceMotion ? 0 : 1000;
-    const reveal = () => window.setTimeout(finishLoading, revealDelay);
+    const minLoaderMs = reduceMotion ? 0 : 700;
+    const maxWaitMs = reduceMotion ? 400 : 5000;
+    const startedAt = performance.now();
+    let revealArmed = false;
 
-    window.addEventListener("load", reveal, { once: true });
-    if (document.readyState === "complete") reveal();
-    // Safety: never block the page
-    window.setTimeout(finishLoading, reduceMotion ? 200 : 2800);
+    const openSite = () => {
+      const elapsed = performance.now() - startedAt;
+      const waitMore = Math.max(0, minLoaderMs - elapsed);
+      window.setTimeout(finishLoading, waitMore);
+    };
+
+    const armReveal = () => {
+      if (revealArmed) return;
+      revealArmed = true;
+
+      if (document.body.classList.contains("glass-cta-ready")) {
+        openSite();
+        return;
+      }
+
+      // Le loader attend que liquid-glass.js ait préparé le bouton
+      window.addEventListener("edile:glass-ready", openSite, { once: true });
+    };
+
+    window.addEventListener("load", armReveal, { once: true });
+    if (document.readyState === "complete") armReveal();
+    // Filet de sécurité (CDN / WebGL)
+    window.setTimeout(finishLoading, maxWaitMs);
   }
 
   /* ---------- Header scroll ---------- */

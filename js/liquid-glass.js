@@ -1,7 +1,7 @@
 /**
  * Liquid Glass — hero CTA
- * Au cold load le WebGL capture souvent une frame noire ; le scroll
- * force une re-capture. On simule ça dès l’init (markChanged + nudge).
+ * Pendant le loader : prépare vidéo + WebGL sous le voile.
+ * N’ouvre la page (edile:glass-ready) que quand le bouton est prêt.
  */
 import { LiquidGlass } from "https://cdn.jsdelivr.net/npm/@ybouane/liquidglass/dist/index.js";
 
@@ -17,32 +17,12 @@ const frames = (n = 1) =>
     requestAnimationFrame(step);
   });
 
-const waitForReady = () =>
-  new Promise((resolve) => {
-    if (
-      document.body.classList.contains("is-ready") ||
-      document.body.classList.contains("is-internal-nav")
-    ) {
-      resolve();
-      return;
-    }
-    const observer = new MutationObserver(() => {
-      if (
-        document.body.classList.contains("is-ready") ||
-        document.body.classList.contains("is-internal-nav")
-      ) {
-        observer.disconnect();
-        resolve();
-      }
-    });
-    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-    setTimeout(() => {
-      observer.disconnect();
-      resolve();
-    }, 1200);
-  });
+const signalGlassReady = () => {
+  document.body.classList.add("glass-cta-ready");
+  window.dispatchEvent(new CustomEvent("edile:glass-ready"));
+};
 
-const waitForVideoReady = (video, maxMs = 2500) =>
+const waitForVideoReady = (video, maxMs = 2800) =>
   new Promise((resolve) => {
     if (!video) {
       resolve(false);
@@ -101,7 +81,6 @@ const applyCssGlass = (els) => {
   });
 };
 
-/** Même effet qu’un scroll : force LiquidGlass à re-sampler la vidéo */
 const wakeGlass = async (instance, root, video) => {
   if (!instance) return;
 
@@ -113,9 +92,8 @@ const wakeGlass = async (instance, root, video) => {
     } catch (_) {}
   };
 
-  // Nudge --hero-cover (le scroll change ce transform → re-capture)
   const prev = root.style.getPropertyValue("--hero-cover");
-  root.style.setProperty("--hero-cover", "0.02");
+  root.style.setProperty("--hero-cover", "0.025");
   refresh();
   await frames(2);
 
@@ -123,7 +101,6 @@ const wakeGlass = async (instance, root, video) => {
   refresh();
   await frames(2);
 
-  // Resize = full re-capture dans la lib
   try {
     window.dispatchEvent(new Event("resize"));
   } catch (_) {}
@@ -136,29 +113,35 @@ const initHeroGlass = async () => {
   const glassElements = [...document.querySelectorAll("#liquid-glass-root .glass")];
   const video = root?.querySelector(".hero-video");
 
-  if (!root || !glassElements.length) return;
-
-  // CSS glass visible tout de suite (jamais de pastille noire)
-  applyCssGlass(glassElements);
-
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (!root || !glassElements.length) {
+    signalGlassReady();
     return;
   }
 
-  await waitForReady();
+  applyCssGlass(glassElements);
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    signalGlassReady();
+    return;
+  }
+
+  // Préparer SOUS le loader — ne pas attendre is-ready
+  document.body.classList.add("glass-cta-preparing");
   ensureVideoBright(video);
 
-  const videoReady = await waitForVideoReady(video, 2500);
+  const videoReady = await waitForVideoReady(video, 2800);
   await Promise.all([
     document.fonts?.ready
-      ? Promise.race([document.fonts.ready.catch(() => {}), sleep(200)])
+      ? Promise.race([document.fonts.ready.catch(() => {}), sleep(250)])
       : Promise.resolve(),
-    sleep(videoReady ? 200 : 0),
+    sleep(videoReady ? 160 : 0),
   ]);
-  await frames(2);
+  await frames(3);
 
   if (!videoReady) {
     console.warn("[LiquidGlass:hero] video not ready — CSS glass kept");
+    document.body.classList.remove("glass-cta-preparing");
+    signalGlassReady();
     return;
   }
 
@@ -168,9 +151,9 @@ const initHeroGlass = async () => {
       glassElements,
     });
 
-    // Re-capture immédiate (comme après un scroll) AVANT de retirer le fallback
+    // Re-captures pendant que le loader cache encore le hero
     await wakeGlass(instance, root, video);
-    await sleep(120);
+    await sleep(100);
     await wakeGlass(instance, root, video);
 
     glassElements.forEach((el) => {
@@ -178,15 +161,10 @@ const initHeroGlass = async () => {
       el.classList.remove("glass-fallback");
     });
 
-    // Encore une fois une fois le bouton transparent (échantillon final)
     await frames(2);
     await wakeGlass(instance, root, video);
-
-    // Filet de sécurité : si une frame noire reste, re-wake au premier scroll
-    // est déjà géré par la lib ; on re-wake aussi après un court délai
-    setTimeout(() => {
-      wakeGlass(instance, root, video);
-    }, 400);
+    await sleep(80);
+    await wakeGlass(instance, root, video);
 
     window.addEventListener(
       "pagehide",
@@ -201,6 +179,10 @@ const initHeroGlass = async () => {
     console.warn("[LiquidGlass:hero] init skipped — CSS glass kept:", err);
     applyCssGlass(glassElements);
   }
+
+  document.body.classList.remove("glass-cta-preparing");
+  // Bouton prêt → le loader peut s’ouvrir
+  signalGlassReady();
 };
 
 initHeroGlass();
