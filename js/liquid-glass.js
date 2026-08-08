@@ -1,11 +1,21 @@
 /**
  * Liquid Glass — hero CTA
- * Toujours un glass CSS visible d’abord.
- * WebGL seulement quand la vidéo est assez claire (évite le bouton noir au cold load / GitHub).
+ * Au cold load le WebGL capture souvent une frame noire ; le scroll
+ * force une re-capture. On simule ça dès l’init (markChanged + nudge).
  */
 import { LiquidGlass } from "https://cdn.jsdelivr.net/npm/@ybouane/liquidglass/dist/index.js";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const frames = (n = 1) =>
+  new Promise((resolve) => {
+    let i = 0;
+    const step = () => {
+      i += 1;
+      if (i >= n) resolve();
+      else requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
 
 const waitForReady = () =>
   new Promise((resolve) => {
@@ -32,14 +42,14 @@ const waitForReady = () =>
     }, 1200);
   });
 
-const waitForVideoReady = (video, maxMs = 2200) =>
+const waitForVideoReady = (video, maxMs = 2500) =>
   new Promise((resolve) => {
     if (!video) {
       resolve(false);
       return;
     }
 
-    const ok = () => video.readyState >= 2 && !video.ended;
+    const ok = () => video.readyState >= 2 && video.videoWidth > 0;
 
     if (ok()) {
       resolve(true);
@@ -52,23 +62,27 @@ const waitForVideoReady = (video, maxMs = 2200) =>
       done = true;
       video.removeEventListener("loadeddata", onReady);
       video.removeEventListener("canplay", onReady);
+      video.removeEventListener("playing", onReady);
       video.removeEventListener("error", onError);
       resolve(value);
     };
 
-    const onReady = () => finish(ok());
+    const onReady = () => {
+      if (ok()) finish(true);
+    };
     const onError = () => finish(false);
 
     video.addEventListener("loadeddata", onReady);
     video.addEventListener("canplay", onReady);
+    video.addEventListener("playing", onReady);
     video.addEventListener("error", onError);
     setTimeout(() => finish(ok()), maxMs);
   });
 
 const ensureVideoBright = (video) => {
   if (!video) return;
-  // Aligné sur is-internal-nav : le sampling WebGL a besoin d’une vidéo lisible
   video.style.opacity = "1";
+  video.setAttribute("data-dynamic", "");
   try {
     const playPromise = video.play();
     if (playPromise?.catch) playPromise.catch(() => {});
@@ -87,6 +101,36 @@ const applyCssGlass = (els) => {
   });
 };
 
+/** Même effet qu’un scroll : force LiquidGlass à re-sampler la vidéo */
+const wakeGlass = async (instance, root, video) => {
+  if (!instance) return;
+
+  const refresh = () => {
+    try {
+      if (video) instance.markChanged(video);
+      instance.markChanged(root);
+      instance.markChanged();
+    } catch (_) {}
+  };
+
+  // Nudge --hero-cover (le scroll change ce transform → re-capture)
+  const prev = root.style.getPropertyValue("--hero-cover");
+  root.style.setProperty("--hero-cover", "0.02");
+  refresh();
+  await frames(2);
+
+  root.style.setProperty("--hero-cover", prev || "0");
+  refresh();
+  await frames(2);
+
+  // Resize = full re-capture dans la lib
+  try {
+    window.dispatchEvent(new Event("resize"));
+  } catch (_) {}
+  refresh();
+  await frames(2);
+};
+
 const initHeroGlass = async () => {
   const root = document.querySelector("#liquid-glass-root");
   const glassElements = [...document.querySelectorAll("#liquid-glass-root .glass")];
@@ -94,7 +138,7 @@ const initHeroGlass = async () => {
 
   if (!root || !glassElements.length) return;
 
-  // Glass CSS immédiat — jamais de bouton noir pendant le loading
+  // CSS glass visible tout de suite (jamais de pastille noire)
   applyCssGlass(glassElements);
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -104,18 +148,15 @@ const initHeroGlass = async () => {
   await waitForReady();
   ensureVideoBright(video);
 
-  const videoReady = await waitForVideoReady(video, 2200);
+  const videoReady = await waitForVideoReady(video, 2500);
   await Promise.all([
     document.fonts?.ready
       ? Promise.race([document.fonts.ready.catch(() => {}), sleep(200)])
       : Promise.resolve(),
-    // Laisser le hero-video-in / paint atteindre une frame claire
-    sleep(videoReady ? 280 : 0),
+    sleep(videoReady ? 200 : 0),
   ]);
+  await frames(2);
 
-  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-  // Sans frame vidéo utilisable → garder le glass CSS (look correct)
   if (!videoReady) {
     console.warn("[LiquidGlass:hero] video not ready — CSS glass kept");
     return;
@@ -127,14 +168,25 @@ const initHeroGlass = async () => {
       glassElements,
     });
 
-    // Une frame WebGL avant de retirer le fallback (évite flash noir)
-    await new Promise((r) => requestAnimationFrame(r));
-    await sleep(80);
+    // Re-capture immédiate (comme après un scroll) AVANT de retirer le fallback
+    await wakeGlass(instance, root, video);
+    await sleep(120);
+    await wakeGlass(instance, root, video);
 
     glassElements.forEach((el) => {
       el.classList.add("is-liquid");
       el.classList.remove("glass-fallback");
     });
+
+    // Encore une fois une fois le bouton transparent (échantillon final)
+    await frames(2);
+    await wakeGlass(instance, root, video);
+
+    // Filet de sécurité : si une frame noire reste, re-wake au premier scroll
+    // est déjà géré par la lib ; on re-wake aussi après un court délai
+    setTimeout(() => {
+      wakeGlass(instance, root, video);
+    }, 400);
 
     window.addEventListener(
       "pagehide",
